@@ -118,94 +118,96 @@ let loadImages = (callback) => {
 
 // animate both player and opponent movements
 let animate = (context, playerImages, opponentImages, playerAnimation, oppenentAnimation, callback) => {
-	let playerImage = playerImages[playerAnimation];
-	let opponentImage = opponentImages[oppenentAnimation];
+	try {
+		let playerImage = playerImages[playerAnimation];
+		let opponentImage = opponentImages[oppenentAnimation];
 
-	// return true or false, if the movement value is exists in image element source
-	let playerAction = (image, movement) => image.src.includes(movement);
-	let opponentAction = (image, movement) => image.src.includes(movement);
+		// return true or false, if the movement value is exists in image element source
+		let playerAction = (image, movement) => image.src.includes(movement);
+		let opponentAction = (image, movement) => image.src.includes(movement);
 
-	// animate player's images
-	playerImage.forEach((image, index) => {
-		setTimeout(() => {
-			isPlayerBlocked = playerAction(image, "block");
+		// animate player's images
+		playerImage.forEach((image, index) => {
+			setTimeout(() => {
+				isPlayerBlocked = playerAction(image, "block");
 
-			/* opponent's body position is opponent x-axis - 130
-			 * opponent's upper body position is opponent x-axis - 170
-			 * opponent's head position is opponent x-axis - 140
-			 */
-			if (playerAction(image, "forward") && playerXaxis <= opponentXaxis - 130) {
-				playerXaxis += 10; // forward movement
-			} else if (playerAction(image, "backward") && playerXaxis > -50) {
-				playerXaxis -= 10; // backward movement
-			}
+				/* opponent's body position is opponent x-axis - 130
+				 * opponent's upper body position is opponent x-axis - 170
+				 * opponent's head position is opponent x-axis - 140
+				 */
+				if (playerAction(image, "forward") && playerXaxis <= opponentXaxis - 130) {
+					playerXaxis += 10; // forward movement
+				} else if (playerAction(image, "backward") && playerXaxis > -50) {
+					playerXaxis -= 10; // backward movement
+				}
 
-			// player attack
-			if (playerAction(image, "punch") && opponentBar < 500) {
-				if (playerXaxis >= opponentXaxis - 170) {
-					audio.hit.play(); // play hit audio file
-					if (!isOpponentBlocked) { // check if opponent is not blocking
-						opponentBar += 2; // reduce 2 points from opponent health
-						playerAttackCount++; // increase player attack count for prevent opponent
+				// player attack
+				if (playerAction(image, "punch") && opponentBar < 500) {
+					if (playerXaxis >= opponentXaxis - 170) {
+						audio.hit.play(); // play hit audio file
+						if (!isOpponentBlocked) { // check if opponent is not blocking
+							opponentBar += 2; // reduce 2 points from opponent health
+							playerAttackCount++; // increase player attack count for prevent opponent
+						}
+					} else {
+						audio.punch.play(); // play punch audio file
+						setTimeout(() => audio.hit.pause(), 200); // after 200ms punch audio file would be passed
 					}
-				} else {
-					audio.punch.play(); // play punch audio file
-					setTimeout(() => audio.hit.pause(), 200); // after 200ms punch audio file would be passed
+				} else if (playerAction(image, "kick") && opponentBar < 500) {
+					audio.kick.play(); // play kick audio file
+					if (playerXaxis >= opponentXaxis - 140) {
+						audio.hit.play();
+						if (!isOpponentBlocked) {
+							opponentBar += 5; // reduce 5 points from opponent health
+							playerAttackCount++;
+						}
+					}
+				} else playerAttackCount = 0; // player action is not attack action playerAttackCount would be reset
+
+				// clear canvas before image would be loaded
+				context.clearRect(0, 0, 1255, 500);
+				// draw image in canvas
+				context.drawImage(image, playerXaxis, 0, 500, 500);
+			}, index * 100); // it could be animation speed
+		});
+
+		// animate opponent's movement
+		opponentImage.forEach((image, index) => {
+			setTimeout(() => {
+				/* player's body position is opponent x-axis + 130
+				 * player's upper body position is opponent x-axis + 170
+				 * player's head position is opponent x-axis + 140
+				 */
+
+				if (opponentAction(image, "forward") && opponentXaxis >= playerXaxis + 130) {
+					opponentXaxis -= 10; // forward movement
+				} else if (opponentAction(image, "backward") && opponentXaxis < 800) {
+					opponentXaxis += 10; // backward movement
 				}
-			} else if (playerAction(image, "kick") && opponentBar < 500) {
-				audio.kick.play(); // play kick audio file
-				if (playerXaxis >= opponentXaxis - 140) {
-					audio.hit.play();
-					if (!isOpponentBlocked) {
-						opponentBar += 5; // reduce 5 points from opponent health
-						playerAttackCount++;
+
+				// opponent attack
+				if (opponentAction(image, "punch") && playerBar > 0) {
+					if (opponentXaxis <= playerXaxis + 170) {
+						audio.hit.play();
+						if (!isPlayerBlocked)	playerBar -= 2; // reduce 2 points from player health
+					} else audio.punch.play();
+				} else if (opponentAction(image, "kick") && playerBar > 0) {
+					audio.kick.play();
+					if (opponentXaxis <= playerXaxis + 140) {
+						audio.hit.play();
+						if (!isPlayerBlocked)	playerBar -= 5; // reduce 5 points from player health
 					}
 				}
-			} else playerAttackCount = 0; // player action is not attack action playerAttackCount would be reset
 
-			// clear canvas before image would be loaded
-			context.clearRect(0, 0, 1255, 500);
-			// draw image in canvas
-			context.drawImage(image, playerXaxis, 0, 500, 500);
-		}, index * 100); // it could be animation speed
-	});
+				// draw opponent's image in canvas
+				context.drawImage(image, opponentXaxis, 0, 500, 500);
+			}, index * 100); // it could be animation speed
+		});
 
-	// animate opponent's movement
-	opponentImage.forEach((image, index) => {
-		setTimeout(() => {
-			/* player's body position is opponent x-axis + 130
-			 * player's upper body position is opponent x-axis + 170
-			 * player's head position is opponent x-axis + 140
-			 */
-
-			if (opponentAction(image, "forward") && opponentXaxis >= playerXaxis + 130) {
-				opponentXaxis -= 10; // forward movement
-			} else if (opponentAction(image, "backward") && opponentXaxis < 800) {
-				opponentXaxis += 10; // backward movement
-			}
-
-			// opponent attack
-			if (opponentAction(image, "punch") && playerBar > 0) {
-				if (opponentXaxis <= playerXaxis + 170) {
-					audio.hit.play();
-					if (!isPlayerBlocked)	playerBar -= 2; // reduce 2 points from player health
-				} else audio.punch.play();
-			} else if (opponentAction(image, "kick") && playerBar > 0) {
-				audio.kick.play();
-				if (opponentXaxis <= playerXaxis + 140) {
-					audio.hit.play();
-					if (!isPlayerBlocked)	playerBar -= 5; // reduce 5 points from player health
-				}
-			}
-
-			// draw opponent's image in canvas
-			context.drawImage(image, opponentXaxis, 0, 500, 500);
-		}, index * 100); // it could be animation speed
-	});
-
-	// check which player has max length
-	setTimeout(callback, (playerImage.length <= opponentImage.length ? playerImage.length : opponentImage.length) * 100);
-	// callback function would be called after time out
+		// check which player has max length
+		setTimeout(callback, (playerImage.length <= opponentImage.length ? playerImage.length : opponentImage.length) * 100);
+		// callback function would be called after time out
+	} catch (error) { console.log("assets failed to load"); }
 };
 
 
