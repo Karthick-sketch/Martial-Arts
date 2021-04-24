@@ -178,7 +178,6 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 				* player's upper body position is opponent x-axis + 170
 				* player's head position is opponent x-axis + 140
 				*/
-
 				if (opponentAction(image, "forward") && opponentXaxis >= playerXaxis + 130) {
 					opponentXaxis -= 10; // forward movement
 				} else if (opponentAction(image, "backward") && opponentXaxis < 800) {
@@ -265,9 +264,9 @@ function ready() {
 
 	// load and store both player and opponent images
 	loadImages((playerImages, opponentImages) => {
-	playerMovements = playerImages;
-	opponentMovements = opponentImages;
-});
+		playerMovements = playerImages;
+		opponentMovements = opponentImages;
+	});
 }
 
 // all game controls and movements exexute here
