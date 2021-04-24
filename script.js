@@ -9,7 +9,7 @@ let opponentXaxis = 800;
 
 // health bars pixel value
 let playerBar = 500;
-let opponentBar = 490; // opponent health bar reduce from left to right so, it has to increase
+let opponentBar = 0; // opponent health bar reduce from left to right so, it has to increase
 
 let isPlayerBlocked = false;
 let isOpponentBlocked = false;
@@ -245,7 +245,7 @@ function ready() {
 	// set 90 seconds for game time after the time out
 	timer = setInterval(() => {
 		if (seconds == -1) { // time out
-			seconds = 5;
+			seconds = 90;
 			visibleTimer.innerHTML = seconds--;
 			clearInterval(timer); // stop timer
 			startGame(); // after time out startGame function would be called
