@@ -1,3 +1,6 @@
+// alert user to wait for a while
+alert("Please wait until the web page gets loaded\nIf there is an issue, please refresh the web page");
+
 // ======================= variable declaration =======================
 
 let canvas = document.getElementById("canvas-frame");
