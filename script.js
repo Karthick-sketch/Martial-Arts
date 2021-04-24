@@ -220,6 +220,9 @@ loadImages((playerImages, opponentImages) => {
 
 // game is start from here
 function ready() {
+	// disable the note text
+	document.getElementById("note").style.display = "none";
+
 	ctx.font = "30px Arial black";
 	// accept player and opponent name
 	playerName = document.getElementById("playerInput").value;
