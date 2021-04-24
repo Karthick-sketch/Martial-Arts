@@ -444,7 +444,6 @@ function startGame() {
 		else if (event.key == "l")	playerAnimationQueue.push("kick");
 	});
 
-
 	// opponent movements
 	function controlOpponent() {
 		if (opponentXaxis >= playerXaxis + 130 && opponentMovementCount == 0) {
