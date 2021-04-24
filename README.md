@@ -1,4 +1,4 @@
-# Martial-Arts
+# [Martial-Arts](https://karthick-sketch.github.io/Martial-Arts/)
 
 * Hold D to move forward
 * Hold A to move backward
