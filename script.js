@@ -211,12 +211,6 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 };
 
 
-// load and store both player and opponent images
-loadImages((playerImages, opponentImages) => {
-	playerMovements = playerImages;
-	opponentMovements = opponentImages;
-});
-
 // game is start from here
 function ready() {
 	// disable the note text
@@ -268,6 +262,12 @@ function ready() {
 			ctx.fillText("Ready Fight!", 530, 50);
 		}
 	}, 1000);
+
+	// load and store both player and opponent images
+	loadImages((playerImages, opponentImages) => {
+	playerMovements = playerImages;
+	opponentMovements = opponentImages;
+});
 }
 
 // all game controls and movements exexute here
