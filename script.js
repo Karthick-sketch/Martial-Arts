@@ -283,7 +283,11 @@ function startGame() {
 	let playerBackward = false;
 	let playerBlock = false;
 
+<<<<<<< HEAD
 	// select player's animation based on user input
+=======
+	// select player's animation if user input---------------------------------------------
+>>>>>>> 458a50aa1e9cc0cdd9469b9d364fe14b940d284c
 	let selectAnimation = () => {
 		if (playerForward) {
 			playerSelectedAnimation = "forward";
@@ -320,6 +324,7 @@ function startGame() {
 	// health bar
 	let playerHealthBar = document.getElementsByClassName("bar-layer")[0];
 	let opponentHealthBar = document.getElementById("opponent-health-bar");
+<<<<<<< HEAD
 
 	// opponent health bar background
 	let opponentHealthBarBg = document.getElementsByClassName("bar-layer")[1];
@@ -330,6 +335,18 @@ function startGame() {
 	// stop game and display result on the screen
 	let stopCanvas = () => {
 		if (!gameEnded) { // check game is not ended
+=======
+
+	// opponent health bar background
+	let opponentHealthBarBg = document.getElementsByClassName("bar-layer")[1];
+
+	// return calculation of pixel to percentage
+	let getValue = (pixel) => (pixel * 100) / 500;
+
+	// stop game and display result on the screen
+	let stopCanvas = () => {
+		if (!gameEnded) {
+>>>>>>> 458a50aa1e9cc0cdd9469b9d364fe14b940d284c
 			// pause all audio files
 			for (let key in audio) {	audio[key].pause();	}
 
@@ -436,6 +453,7 @@ function startGame() {
 		}
 
 		selectAnimation();
+<<<<<<< HEAD
 	});
 
 	// track keyboard inputs whether it is just pressed or not
@@ -444,6 +462,16 @@ function startGame() {
 		else if (event.key == "l")	playerAnimationQueue.push("kick");
 	});
 
+=======
+	});
+
+	// track keyboard inputs whether it is just pressed or not
+	document.addEventListener("keypress", (event) => {
+		if (event.key == "p")	playerAnimationQueue.push("punch");
+		else if (event.key == "l")	playerAnimationQueue.push("kick");
+	});
+
+>>>>>>> 458a50aa1e9cc0cdd9469b9d364fe14b940d284c
 	// opponent movements
 	function controlOpponent() {
 		if (opponentXaxis >= playerXaxis + 130 && opponentMovementCount == 0) {
@@ -466,8 +494,17 @@ function startGame() {
 			// after backward movement, it just animate idle action for 5 times
 			opponentAnimationQueue.push("idle");
 			opponentMovementCount++;
+<<<<<<< HEAD
 		} else opponentMovementCount = 0;
 
 		if (playerAttackCount < 20) isOpponentBlocked = false;
 	}
 }
+=======
+		} else	{
+			opponentMovementCount = 0;
+			isOpponentBlocked = false;
+		}
+	}
+}
+>>>>>>> 458a50aa1e9cc0cdd9469b9d364fe14b940d284c
