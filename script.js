@@ -220,9 +220,6 @@ loadImages((playerImages, opponentImages) => {
 
 // game is start from here
 function ready() {
-	// alert user to wait for a while
-	alert("Please wait until the web page gets loaded\nIf there is an issue, please refresh the web page");
-
 	ctx.font = "30px Arial black";
 	// accept player and opponent name
 	playerName = document.getElementById("playerInput").value;
