@@ -211,6 +211,13 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 };
 
 
+// ============================ load and store both player and opponent images ============================
+loadImages((playerImages, opponentImages) => {
+	playerMovements = playerImages;
+	opponentMovements = opponentImages;
+});
+
+
 // game is start from here
 function ready() {
 	ctx.font = "30px Arial black";
@@ -259,12 +266,6 @@ function ready() {
 			ctx.fillText("Ready Fight!", 530, 50);
 		}
 	}, 1000);
-
-	// load and store both player and opponent images
-	loadImages((playerImages, opponentImages) => {
-		playerMovements = playerImages;
-		opponentMovements = opponentImages;
-	});
 }
 
 // all game controls and movements exexute here
