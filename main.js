@@ -59,7 +59,8 @@ let loadImages = (callback) => {
 					opponentImages[animation][frameNumber - 1] = image;
 
 					if (--imagesToLoad == 0) {
-						callback(playerImages, opponentImages); // if imagesToLoad become zero callback will be called
+						// if imagesToLoad become zero callback function will be called
+						callback(playerImages, opponentImages);
 					}
 				});
 			});
@@ -67,7 +68,10 @@ let loadImages = (callback) => {
 	);
 };
 
-let audio = { ready_fight: null, hit: null, punch: null, kick: null };
+let audio = {
+	ready_fight: null, hit: null, punch: null, kick: null,
+	winner: null, game_over: null, background_music: null
+};
 
 for (let index in audio) {
 	audio[index] = loadAudio(audioPath(index));
@@ -75,18 +79,18 @@ for (let index in audio) {
 
 // standing positiona
 let playerXaxis = -50;
-let opponentXaxis = 200;
+let opponentXaxis = 800;
 
 // health bars value
 let playerBar = 500;
-let opponentBar = 490;
+let opponentBar = 0;
+
+let playerBlocked = false;
+let opponentBlocked = false;
 
 let animate = (context, playerImages, opponentImages, playerAnimation, oppenentAnimation, callback) => {
 	let playerImage = playerImages[playerAnimation];
 	let opponentImage = opponentImages[oppenentAnimation];
-
-	let playerBlocked = false;
-	let opponentBlocked = false;
 
 	let playerAction = (image, str) => {
 		return (image !== undefined ? image.src.includes(str) : false);
@@ -98,7 +102,7 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 
 	playerImage.forEach((image, index) => {
 		setTimeout(() => {
-			playerBlocked = (playerAction(image, "block") ? true : false);
+			playerBlocked = playerAction(image, "block");
 
 			if (playerAction(image, "forward") && playerXaxis <= opponentXaxis - 130) {
 				playerXaxis += 10; // forward movement
@@ -107,17 +111,27 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 			}
 
 			// player attack
-			if (playerAction(image, "punch")) {
-				if (playerXaxis >= opponentXaxis - 130 && opponentBar < 500 && !opponentBlocked) {
-					opponentBar += 2; // reduce 2 points from opponent health
+			if (playerAction(image, "punch") && opponentBar < 500) {
+				if (playerXaxis >= opponentXaxis - 170) {
 					audio.hit.play();
-				} else audio.punch.play();
-			} else if (playerAction(image, "kick")) {
-				if (playerXaxis >= opponentXaxis - 130 && opponentBar < 500 && !opponentBlocked) {
-					opponentBar += 5; // reduce 5 points from opponent health
-					audio.kick.play();	audio.hit.play();
-				} else audio.kick.play();
-			}
+					if (!opponentBlocked) {
+						opponentBar += 2; // reduce 2 points from opponent health
+						playerAttackCount++;
+					}
+				} else {
+					audio.punch.play();
+					setTimeout(() => audio.hit.pause(), 200);
+				}
+			} else if (playerAction(image, "kick") && opponentBar < 500) {
+				audio.kick.play();
+				if (playerXaxis >= opponentXaxis - 140) {
+					audio.hit.play();
+					if (!opponentBlocked) {
+						opponentBar += 5; // reduce 5 points from opponent health
+						playerAttackCount++;
+					}
+				}
+			} else playerAttackCount = 0;
 
 			// clear canvas before image would be loaded
 			context.clearRect(0, 0, 1255, 500);
@@ -128,8 +142,6 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 
 	opponentImage.forEach((image, index) => {
 		setTimeout(() => {
-			opponentBlocked = (opponentAction(image, "block") ? true : false);
-
 			if (opponentAction(image, "forward") && opponentXaxis >= playerXaxis + 130) {
 				opponentXaxis -= 10; // forward movement
 			} else if (opponentAction(image, "backward") && opponentXaxis < 800) {
@@ -137,16 +149,17 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 			}
 
 			// opponent attack
-			if (opponentAction(image, "punch")) {
-				if (opponentXaxis <= playerXaxis + 130 && playerBar > -50 && !playerBlocked) {
-					playerBar -= 2; // reduce 2 points from player health
+			if (opponentAction(image, "punch") && playerBar > 0) {
+				if (opponentXaxis <= playerXaxis + 170) {
 					audio.hit.play();
+					if (!playerBlocked)	playerBar -= 2; // reduce 2 points from player health
 				} else audio.punch.play();
-			} else if (opponentAction(image, "kick")) {
-				if (opponentXaxis <= playerXaxis + 130 && playerBar > -50 && !playerBlocked) {
-					playerBar -= 5; // reduce 5 points from player health
-					audio.kick.play();	audio.hit.play();
-				} else audio.kick.play();
+			} else if (opponentAction(image, "kick") && playerBar > 0) {
+				audio.kick.play();
+				if (opponentXaxis <= playerXaxis + 140) {
+					audio.hit.play();
+					if (!playerBlocked)	playerBar -= 5; // reduce 5 points from player health
+				}
 			}
 
 			// draw player's image in canvas
@@ -157,13 +170,16 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 	setTimeout(callback, len * 100);
 };
 
-let seconds = 2;
+let seconds = 4;
 let visibleTimer = document.getElementById("timer");
 let timer = null;
 let playerName = null;
 let opponentName = null;
+let playerMovements = null;
+let opponentMovements = null;
 
 function ready() {
+	ctx.font = "30px Arial black";
 	// accept player and opponent name
 	playerName = document.getElementById("playerInput").value;
 	opponentName = document.getElementById("opponentInput").value;
@@ -185,6 +201,16 @@ function ready() {
 	document.getElementById("header").style.display = "block";
 	document.getElementById("canvas-frame").style.display = "block";
 
+	// print instructions to the screen
+	ctx.fillText("Hold D to move forward", 50, 150);
+	ctx.fillText("Hold A to move backward", 50, 250);
+	ctx.fillText("Hold Space to block", 50, 350);
+
+	ctx.fillText("Press P to punch", 900, 150);
+	ctx.fillText("Press L to kick", 900, 250);
+
+	// below code start count down from 3 to 1 for players to be ready
+	// set 90 seconds for game time after the time out
 	timer = setInterval(() => {
 		if (seconds == -1) {
 			seconds = 90;
@@ -193,24 +219,35 @@ function ready() {
 			start();
 		} else visibleTimer.innerHTML = seconds--;
 
+		// below if block play an audio and print ready fight! on the screen
 		if (seconds == -1) {
 			audio.ready_fight.play();
-			ctx.font = "30px Arial black";
 			ctx.fillText("Ready Fight!", 530, 50);
 		}
 	}, 1000);
+
+	loadImages((playerImages, opponentImages) => {
+		playerMovements = playerImages;
+		opponentMovements = opponentImages;
+	});
 }
 
+let opponentMovementCount = 0;
+let playerAttackCount = 0;
+let blockCount = 0;
+
 function start() {
+	audio.background_music.play();
+	audio.background_music.volume = 0.4;
+
+	let result = true;
+
 	let playerSelectedAnimation = "idle";
 	let opponentSelectedAnimation = "idle";
 
 	let playerForward = false;
-	let opponentForward = false;
 	let playerBackward = false;
-	let opponentBackward = false;
 	let playerBlock = false;
-	let opponentBlock = false;
 
 	let selectAnimation = () => {
 		if (playerForward) {
@@ -220,14 +257,6 @@ function start() {
 		} else if (playerBlock) {
 			playerSelectedAnimation = "block";
 		} else playerSelectedAnimation = "idle";
-
-		if (opponentForward) {
-			opponentSelectedAnimation = "forward";
-		} else if (opponentBackward) {
-			opponentSelectedAnimation = "backward";
-		} else if (opponentBlock) {
-			opponentSelectedAnimation = "block";
-		} else opponentSelectedAnimation = "idle";
 	}
 
 	timer = setInterval(() => {
@@ -239,133 +268,147 @@ function start() {
 		visibleTimer.innerHTML = seconds--;
 	}, 1000);
 
-	loadImages((playerImages, opponentImages) => {
-		let playerAnimationQueue = [];
-		let opponentAnimationQueue = [];
-		let message = " won the match";
+	let playerAnimationQueue = [];
+	let opponentAnimationQueue = ["idle", "idle"];
+	let message = " won the match";
 
-		// return calculation of pixel to percentage
-		let getValue = (pixel) => (pixel * 100) / 500;
-		let stopCanvas = () => {
-			audio.forEach((i) => i.pause()); // pause all audio files
+	document.getElementsByClassName("bar-layer")[0].style.backgroundColor = "green";
+	let resultBoard = document.getElementById("article");
+	let matchResult = document.getElementById("result");
+	let matchResultText = document.getElementById("resultText");
+
+	let playerHealthBar = document.getElementsByClassName("bar-layer")[0];
+	let opponentHealthBar = document.getElementById("opponent-health-bar");
+
+	let opponentHealthBarBg = document.getElementsByClassName("bar-layer")[1];
+
+	// return calculation of pixel to percentage
+	let getValue = (pixel) => (pixel * 100) / 500;
+	let stopCanvas = () => {
+		if (result) {
+			// pause all audio files
+			for (let key in audio) {	audio[key].pause();	}
 			// disable canvas and header
 			document.getElementById("header").style.display = "none";
 			document.getElementById("canvas-frame").style.display = "none";
-		};
-
-		document.getElementsByClassName("bar-layer")[0].style.backgroundColor = "green";
-		let resultBoard = document.getElementById("article");
-		let matchResult = document.getElementById("result");
-		let matchResultText = document.getElementById("resultText");
-
-		let playerHealthBar = document.getElementsByClassName("bar-layer")[0];
-		let opponentHealthBar = document.getElementById("opponent-health-bar");
-
-		let opponentHealthBarBg = document.getElementsByClassName("bar-layer")[1];
-
-		let aux = () => { // execute actions
-
-		// set health bars value to header
-		playerHealthBar.style.width = String(playerBar) + "px";
-		opponentHealthBarBg.style.width = String(opponentBar) + "px";
-
-		selectAnimation();
-		if (playerAnimationQueue.length != 0)
-			playerSelectedAnimation =  playerAnimationQueue.shift();			
-
-		if (opponentAnimationQueue.length != 0)
-			opponentSelectedAnimation =  opponentAnimationQueue.shift();
-
-		animate(ctx, playerImages, opponentImages, playerSelectedAnimation, opponentSelectedAnimation, aux);
-
-		// Time out
-		if (seconds == -1) {
-			stopCanvas();
 			resultBoard.style.display = "block"; // enable result board
-			if (getValue(playerBar) <= 100 - getValue(opponentBar)) {
-				matchResult.innerHTML = "Game Over!";
-				matchResult.style.color = "red";
-				matchResultText.innerHTML = opponentName + message;
-			} else {
-				matchResult.innerHTML = "Winner!";
-				matchResult.style.color = "green";
-				matchResultText.innerHTML = playerName + message;
-			}
+			result = false;
 		}
+		setTimeout(() => location.reload(), 2000);
+	};
 
-		if (getValue(playerBar) <= 0) {
-			stopCanvas();
+	let aux = () => { // execute actions
+
+	// set health bars value to progress bars
+	playerHealthBar.style.width = String(playerBar) + "px";
+	opponentHealthBarBg.style.width = String(opponentBar) + "px";
+
+	selectAnimation();	autoplay();
+	if (playerAnimationQueue.length != 0)
+		playerSelectedAnimation =  playerAnimationQueue.shift();		
+
+	if (opponentAnimationQueue.length != 0)
+		opponentSelectedAnimation =  opponentAnimationQueue.shift();		
+
+	animate(ctx, playerMovements, opponentMovements, playerSelectedAnimation, opponentSelectedAnimation, aux);
+
+	// Time out
+	// below the if block find out which player has maximum health and show that player as winner
+	if (seconds == -1) {
+		stopCanvas();
+		if (getValue(playerBar) <= 100 - getValue(opponentBar)) {
+			audio.game_over.play();
 			matchResult.innerHTML = "Game Over!";
 			matchResult.style.color = "red";
 			matchResultText.innerHTML = opponentName + message;
-			resultBoard.style.display = "block"; // enable result board
-		} else if (getValue(playerBar) <= 15) {
-			// set red color to the player health bar if its value is less than or equal to 15
-			playerHealthBar.style.backgroundColor = "#c00";
-		}
-
-		if (getValue(opponentBar) >= 100) {
-			stopCanvas();
+		} else {
+			audio.winner.play();
 			matchResult.innerHTML = "Winner!";
 			matchResult.style.color = "green";
 			matchResultText.innerHTML = playerName + message;
-			resultBoard.style.display = "block"; // enable result board
-		} else if (getValue(opponentBar) >= 85) {
-			// set red color to the opponent health bar if its value is less than or equal to 15
-			opponentHealthBar.style.backgroundColor = "#c00";
-		} else {
-			// set green color to the oppenent health bar if its value is greater than 15
-			opponentHealthBar.style.backgroundColor = "green";
 		}
-		// set grey color to the opponent health bar background
-		opponentHealthBarBg.style.backgroundColor = "grey";
-		};
+	}
 
-		aux();
+	// show result board when the player bar value is less than or equal to 0
+	if (getValue(playerBar) <= 0) {
+		stopCanvas();
+		audio.game_over.play();
+		matchResult.innerHTML = "Game Over!";
+		matchResult.style.color = "red";
+		matchResultText.innerHTML = opponentName + message;
+	} else if (getValue(playerBar) <= 15) {
+		// set red color to the player health bar if its value is less than or equal to 15
+		playerHealthBar.style.backgroundColor = "#c00";
+	}
 
-		// track keyboard inputs whether it is hold or not
-		document.addEventListener("keydown", (event) => {
-			if (event.key == "d") playerForward = true;
-			else if (event.key == "a") playerBackward = true;
-			else if (event.key == "ArrowLeft") opponentForward = true;
-			else if (event.key == "ArrowRight") opponentBackward = true;
-			else if (event.key == "v") playerBlock = true;
-			else if (event.key == "b") opponentBlock = true;
-			else if (event.key == " ") playerBlock = true;
+	// show result board when the opponent bar value is greater than or equal to 100
+	if (getValue(opponentBar) >= 100) {
+		stopCanvas();
+		audio.winner.play();
+		matchResult.innerHTML = "Winner!";
+		matchResult.style.color = "green";
+		matchResultText.innerHTML = playerName + message;
+	} else if (getValue(opponentBar) >= 85) {
+		// set red color to the opponent health bar if its value is less than or equal to 15
+		opponentHealthBar.style.backgroundColor = "#c00";
+	} else {
+		// set green color to the oppenent health bar if its value is greater than 15
+		opponentHealthBar.style.backgroundColor = "green";
+	}
+	// set grey color to the opponent health bar background
+	opponentHealthBarBg.style.backgroundColor = "grey";
+	};
 
-			selectAnimation();
-		});
+	aux();
 
-		// track keyboard inputs whether it is released or not
-		document.addEventListener("keyup", (event) => {
-			if (event.key == "d") playerForward = false;
-			else if (event.key == "a") playerBackward = false;
-			else if (event.key == "ArrowLeft") opponentForward = false;
-			else if (event.key == "ArrowRight") opponentBackward = false;
-			else if (event.key == "v") playerBlock = false;
-			else if (event.key == "b") opponentBlock = false;
-			else if (event.key == " ") playerBlock = false;
-
-			selectAnimation();
-		});
-
-		// track keyboard inputs whether it is just pressed or not
-		document.addEventListener("keypress", (event) => {
-			switch (event.key) {
-				// player keys
-				case "r": playerAnimationQueue.push("punch");	break;
-				case "f": playerAnimationQueue.push("kick");	break;
-
-				// opponent keys
-				case "p": opponentAnimationQueue.push("punch");	break;
-				case "l": opponentAnimationQueue.push("kick");	break;
-			}
-		});
-
-		// bot
-		function bot() {
-			opponentAnimationQueue.push();
-			return
+	// track keyboard inputs whether it is hold or not
+	document.addEventListener("keydown", (event) => {
+		switch(event.key) {
+			case "d": playerForward = true;		break;
+			case "a": playerBackward = true;	break;
+			case " ": playerBlock = true;
 		}
+
+		selectAnimation();
 	});
+
+	// track keyboard inputs whether it is released or not
+	document.addEventListener("keyup", (event) => {
+		switch (event.key) {
+			case "d": playerForward = false;	break;
+			case "a": playerBackward = false;	break;
+			case " ": playerBlock = false;
+		}
+
+		selectAnimation();
+	});
+
+	// track keyboard inputs whether it is just pressed or not
+	document.addEventListener("keypress", (event) => {
+		if (event.key == "p")	playerAnimationQueue.push("punch");
+		else if (event.key == "l")	playerAnimationQueue.push("kick");
+	});
+
+	// opponent movements
+	function autoplay() {
+		if (opponentXaxis >= playerXaxis + 130 && opponentMovementCount == 0) {
+			opponentAnimationQueue.push("forward");
+		} else if (playerAttackCount >= 20) {
+			opponentAnimationQueue.push("block");
+			opponentBlocked = true;
+		} else if(opponentMovementCount >= 0 && opponentMovementCount <= 5) {
+			opponentAnimationQueue.push((Math.random() <= 0.5 ? "punch" : "kick"));
+			opponentMovementCount++;
+		} else if (opponentMovementCount <= 10) {
+			opponentAnimationQueue.push("backward");
+			playerAttackCount = 0;
+			opponentMovementCount++;
+		} else if (opponentMovementCount <= 15) {
+			opponentAnimationQueue.push("idle");
+			opponentMovementCount++;
+		} else	{
+			opponentMovementCount = 0;
+			opponentBlocked = false;
+		}
+	}
 }

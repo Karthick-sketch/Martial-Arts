@@ -19,7 +19,7 @@
 	border: none;
 	outline: none;
 	font-size: x-large;
-	border-bottom: 2px solid gray;
+	border-bottom: 2px solid grey;
 }
 
 #start-btn:hover {
@@ -50,7 +50,7 @@ aside {
 
 #player-health-bar {
 	width: 500px;
-	background-color: gray;
+	background-color: grey;
 	border: black solid 2px;
 }
 
@@ -67,7 +67,7 @@ aside {
 
 #opponent-health-bar .bar-layer {
 	height: 25px;
-	background-color: gray;
+	background-color: grey;
 }
 
 #player, #opponent {
