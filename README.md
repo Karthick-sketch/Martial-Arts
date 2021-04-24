@@ -7,3 +7,4 @@
 * Press P to punch
 * Press L to kick
 
+Note: If there is any issue please refresh the page
