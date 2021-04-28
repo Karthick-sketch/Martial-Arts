@@ -122,27 +122,26 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 		let playerImage = playerImages[playerAnimation];
 		let opponentImage = opponentImages[oppenentAnimation];
 
-		// return true or false, if the movement value is exists in image element source
-		let playerAction = (image, movement) => image.src.includes(movement);
-		let opponentAction = (image, movement) => image.src.includes(movement);
+		// return true or false, if the movement's value is exists in image element source
+		let action = (image, movement) => image.src.includes(movement);
 
 		// animate player's images
 		playerImage.forEach((image, index) => {
 			setTimeout(() => {
-				isPlayerBlocked = playerAction(image, "block");
+				isPlayerBlocked = action(image, "block");
 
 				/* opponent's body position is opponent x-axis - 130
 				* opponent's upper body position is opponent x-axis - 170
 				* opponent's head position is opponent x-axis - 140
 				*/
-				if (playerAction(image, "forward") && playerXaxis <= opponentXaxis - 130) {
+				if (action(image, "forward") && playerXaxis <= opponentXaxis - 130) {
 					playerXaxis += 10; // forward movement
-				} else if (playerAction(image, "backward") && playerXaxis > -50) {
+				} else if (action(image, "backward") && playerXaxis > -50) {
 					playerXaxis -= 10; // backward movement
 				}
 
 				// player attack
-				if (playerAction(image, "punch") && opponentBar < 500) {
+				if (action(image, "punch") && opponentBar < 500) {
 					if (playerXaxis >= opponentXaxis - 170) {
 						audio.hit.play(); // play hit audio file
 						if (!isOpponentBlocked) { // check if opponent is not blocking
@@ -153,7 +152,7 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 						audio.punch.play(); // play punch audio file
 						setTimeout(() => audio.hit.pause(), 200); // after 200ms punch audio file would be passed
 					}
-				} else if (playerAction(image, "kick") && opponentBar < 500) {
+				} else if (action(image, "kick") && opponentBar < 500) {
 					audio.kick.play(); // play kick audio file
 					if (playerXaxis >= opponentXaxis - 140) {
 						audio.hit.play();
@@ -178,19 +177,19 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 				 * player's upper body position is opponent x-axis + 170
 				 * player's head position is opponent x-axis + 140
 				 */
-				if (opponentAction(image, "forward") && opponentXaxis >= playerXaxis + 130) {
+				if (action(image, "forward") && opponentXaxis >= playerXaxis + 130) {
 					opponentXaxis -= 10; // forward movement
-				} else if (opponentAction(image, "backward") && opponentXaxis < 800) {
+				} else if (action(image, "backward") && opponentXaxis < 800) {
 					opponentXaxis += 10; // backward movement
 				}
 
 				// opponent attack
-				if (opponentAction(image, "punch") && playerBar > 0) {
+				if (action(image, "punch") && playerBar > 0) {
 					if (opponentXaxis <= playerXaxis + 170) {
 						audio.hit.play();
 						if (!isPlayerBlocked)	playerBar -= 2; // reduce 2 points from player health
 					} else audio.punch.play();
-				} else if (opponentAction(image, "kick") && playerBar > 0) {
+				} else if (action(image, "kick") && playerBar > 0) {
 					audio.kick.play();
 					if (opponentXaxis <= playerXaxis + 140) {
 						audio.hit.play();
@@ -252,10 +251,10 @@ function ready() {
 			seconds = 90;
 			visibleTimer.innerHTML = seconds--;
 			clearInterval(timer); // stop timer
-			startGame(); // after time out startGame function would be called
+			startGame(); // after time out, startGame function would be called
 		} else visibleTimer.innerHTML = seconds--;
 
-		// below if-block play an audio and print ready fight! on the screen
+		// below if-block play an audio and print 'ready fight!' on the screen
 		if (seconds == -1) {
 			audio.ready_fight.play();
 			ctx.fillText("Ready Fight!", 530, 50);
@@ -282,7 +281,7 @@ function startGame() {
 	let playerSelectedAnimation = "idle";
 	let opponentSelectedAnimation = "idle";
 
-	// players movement
+	// player movement
 	let playerMovement = null;
 
 	// return player's animation based on user input
@@ -344,8 +343,8 @@ function startGame() {
 		playerHealthBar.style.width = String(playerBar) + "px";
 		opponentHealthBarBg.style.width = String(opponentBar) + "px";
 
-		// selectAnimation(); // call selectAnimation function to select which action would be animate for player
-		controlOpponent(); // call controlOpponent function to select which action would be animate for opponent
+		// call controlOpponent function to select which action would be animate for opponent
+		controlOpponent();
 
 		// Dequeue from the playerAnimationQueue
 		// call selectAnimation function to get movements when playerAnimationQueue is empty
