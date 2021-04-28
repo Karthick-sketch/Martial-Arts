@@ -175,9 +175,9 @@ let animate = (context, playerImages, opponentImages, playerAnimation, oppenentA
 		opponentImage.forEach((image, index) => {
 			setTimeout(() => {
 				/* player's body position is opponent x-axis + 130
-				* player's upper body position is opponent x-axis + 170
-				* player's head position is opponent x-axis + 140
-				*/
+				 * player's upper body position is opponent x-axis + 170
+				 * player's head position is opponent x-axis + 140
+				 */
 				if (opponentAction(image, "forward") && opponentXaxis >= playerXaxis + 130) {
 					opponentXaxis -= 10; // forward movement
 				} else if (opponentAction(image, "backward") && opponentXaxis < 800) {
@@ -269,7 +269,7 @@ function ready() {
 	});
 }
 
-// all game controls and movements exexute here
+// all game controls and movements execute here
 function startGame() {
 	// play background music
 	audio.background_music.play();
@@ -283,20 +283,10 @@ function startGame() {
 	let opponentSelectedAnimation = "idle";
 
 	// players movement
-	let playerForward = false;
-	let playerBackward = false;
-	let playerBlock = false;
+	let playerMovement = null;
 
-	// select player's animation based on user input
-	let selectAnimation = () => {
-		if (playerForward) {
-			playerSelectedAnimation = "forward";
-		} else if (playerBackward) {
-			playerSelectedAnimation = "backward";
-		} else if (playerBlock) {
-			playerSelectedAnimation = "block";
-		} else playerSelectedAnimation = "idle";
-	}
+	// return player's animation based on user input
+	let selectAnimation = () => playerMovement == null ? "idle" : playerMovement;
 
 	// set game timer
 	timer = setInterval(() => {
@@ -350,17 +340,16 @@ function startGame() {
 
 	// execute both player and opponent actions
 	let executeAction = () => { 
-
 		// set health bars value to progress bars
 		playerHealthBar.style.width = String(playerBar) + "px";
 		opponentHealthBarBg.style.width = String(opponentBar) + "px";
 
-		selectAnimation(); // call selectAnimation function to select which action would be animate for player
+		// selectAnimation(); // call selectAnimation function to select which action would be animate for player
 		controlOpponent(); // call controlOpponent function to select which action would be animate for opponent
-		if (playerAnimationQueue.length != 0) {
-			// Dequeue from the playerAnimationQueue
-			playerSelectedAnimation =  playerAnimationQueue.shift();
-		}
+
+		// Dequeue from the playerAnimationQueue
+		// call selectAnimation function to get movements when playerAnimationQueue is empty
+		playerSelectedAnimation =  playerAnimationQueue.length != 0 ? playerAnimationQueue.shift() : selectAnimation();
 
 		if (opponentAnimationQueue.length != 0) {
 			// Dequeue from the opponentAnimationQueue
@@ -423,9 +412,9 @@ function startGame() {
 	// track keyboard inputs whether user is holding or not
 	document.addEventListener("keydown", (event) => {
 		switch(event.key) {
-			case "d": playerForward = true;		break;
-			case "a": playerBackward = true;	break;
-			case " ": playerBlock = true;
+			case "d": playerMovement = "forward";	break;
+			case "a": playerMovement = "backward";	break;
+			case " ": playerMovement = "block";
 		}
 
 		selectAnimation();
@@ -434,9 +423,7 @@ function startGame() {
 	// track keyboard inputs whether user released or not
 	document.addEventListener("keyup", (event) => {
 		switch (event.key) {
-			case "d": playerForward = false;	break;
-			case "a": playerBackward = false;	break;
-			case " ": playerBlock = false;
+			case "d":	case "a":	case " ": playerMovement = null;
 		}
 
 		selectAnimation();
@@ -462,7 +449,7 @@ function startGame() {
 			opponentAnimationQueue.push((Math.random() <= 0.5 ? "punch" : "kick"));
 			opponentMovementCount++; // opponentMovementCount is increasing
 		} else if (opponentMovementCount <= 10) {
-			// after 5 attacks opponent move forward
+			// after 5 attacks opponent move backward
 			opponentAnimationQueue.push("backward");
 			playerAttackCount = 0; // playerAttackCount would be resetted
 			opponentMovementCount++;
