@@ -32,14 +32,14 @@ let opponentMovementCount = 0;
 // player attack count for prevent opponent from player attacks by using block animation
 let playerAttackCount = 0;
 
+// ======================= functions =======================
+
 // create Image elements
 let loadImage = (src, callback) => {
 	let img = document.createElement("img");
 	img.onload = () => callback(img);
 	img.src = src;
 };
-
-// ======================= functions =======================
 
 // return a string of image file path
 let imagePath = (character, animation, frameNumber) => {
