@@ -43,15 +43,7 @@ let loadImage = (src, callback) => {
 
 // return a string of image file path
 let imagePath = (character, animation, frameNumber) => {
-  return (
-    "./assets/images/" +
-    character +
-    "/" +
-    animation +
-    "/" +
-    String(frameNumber) +
-    ".png"
-  );
+  return "./assets/images/" + character + "/" + animation + "/" + String(frameNumber) + ".png";
 };
 
 // create audio element and return it
