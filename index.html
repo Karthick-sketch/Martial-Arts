@@ -8,30 +8,27 @@
 </head>
 
 <body>
-	<span id="note">
+	<p id="note">
 		Note: Please wait until the web page gets loaded. If there is an issue, please refresh the web page
-	</span>
+	</p>
 
 	<header id="header">
-		<!-- Player Health Bar -->
-		<div id="player-health-bar">
-			<div class="bar-layer"></div>
+		<div id="player-health">
+			<!-- Player Health Bar -->
+			<div id="player-health-bar"><div class="bar-layer"></div></div>
+			<!-- Player Name -->
+			<div id="player"><span id="playerName">Player</span></div>
 		</div>
 
-		<!-- Player Name -->
-		<div id="player"><span id="playerName">Player</span></div>
+		<div><span id="timer">5</span></div>
 
-		<span id="timer">5</span>
-
-		<aside>
+		<div id="opponent-health">
 			<!-- Opponent Health Bar -->
-			<div id="opponent-health-bar">
-				<div class="bar-layer"></div>
-			</div>
-
+			<div id="opponent-health-bar"><div class="bar-layer"></div></div>
 			<!-- Opponent Name -->
 			<div id="opponent"><span id="opponentName">Opponent</span></div>
-		</aside>
+		</div>
+
 	</header>
 
 	<img id="menu-image" src="./assets/images/player/kick/4.png" alt="Martail Arts">
@@ -51,7 +48,7 @@
 		<h3 id="resultText">Player won the match</h3>
 	</article>
 
-	<canvas id="canvas-frame" width="1245px" height="485px">
+	<canvas id="canvas-frame" width="1245px" height="500px">
 		Your browser does not support the HTML5 canvas tag.
 	</canvas>
 
